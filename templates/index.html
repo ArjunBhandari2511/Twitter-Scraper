@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twitter Trends</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        #loading-message {
+            font-size: 16px;
+            color: #007bff;
+            margin-top: 20px;
+        }
+        #trending,
+        #execution-time,
+        #public-ip {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        h1 {
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Twitter Trends</h1>
+    <button onclick="fetchTrendingTopics()">Fetch Trending Topics</button>
+    <div id="loading-message"></div>
+    <div id="trending"></div>
+    <div id="execution-time"></div>
+    <div id="public-ip"></div>
+    <div id="json-output"></div>
+
+    <script>
+        function fetchTrendingTopics() {
+            const loadingMessage = document.getElementById("loading-message");
+            const trendingDiv = document.getElementById("trending");
+            const executionTimeDiv = document.getElementById("execution-time");
+            const publicIpDiv = document.getElementById("public-ip");
+            const jsonOutputDiv = document.getElementById("json-output");
+
+            // Reset UI
+            loadingMessage.textContent = "Fetching trending topics, please wait...";
+            trendingDiv.innerHTML = "";
+            executionTimeDiv.textContent = "";
+            publicIpDiv.textContent = "";
+            jsonOutputDiv.textContent = "";
+
+            // Start the background task
+            fetch("/get_trending")
+                .then((response) => response.json())
+                .then(() => {
+                    const interval = setInterval(() => {
+                        fetch("/get_trending_result")
+                            .then((response) => response.json())
+                            .then((data) => {
+                                if (data.trending) {
+                                    clearInterval(interval); // Stop polling
+                                    displayTrendingTopics(data.trending);
+                                    fetchExecutionTime();
+                                    fetchPublicIp();
+                                    displayJsonData(data);
+                                }
+                            })
+                            .catch(() => {
+                                loadingMessage.textContent = "Error fetching trending results.";
+                                clearInterval(interval);
+                            });
+                    }, 2000); // Poll every 2 seconds
+                })
+                .catch(() => {
+                    loadingMessage.textContent = "Error initiating the trending fetch process.";
+                });
+        }
+
+        function displayTrendingTopics(trending) {
+            document.getElementById("loading-message").textContent = ""; // Clear loading message
+            const trendingHTML = trending.map(topic => `<p>${topic}</p>`).join("");
+            document.getElementById("trending").innerHTML = `<h3>Trending Topics:</h3>${trendingHTML}`;
+        }
+
+        function fetchExecutionTime() {
+            fetch("/get_last_execution_time")
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.last_execution_time) {
+                        document.getElementById("execution-time").textContent = `Last executed at: ${data.last_execution_time}`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById("execution-time").textContent = "Error fetching execution time.";
+                });
+        }
+
+        function fetchPublicIp() {
+            fetch("/get_public_ip")
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.public_ip) {
+                        document.getElementById("public-ip").textContent = `Public IP used: ${data.public_ip}`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById("public-ip").textContent = "Error fetching public IP.";
+                });
+        }
+
+        function displayJsonData(data) {
+            const jsonOutputDiv = document.getElementById("json-output");
+            jsonOutputDiv.textContent = "JSON Output:\n" + JSON.stringify(data, null, 2); // Indentation of 2 spaces
+        }
+    </script>
+</body>
+</html>
