@@ -20,14 +20,14 @@ try:
     print("Entering username...")
     wait = WebDriverWait(driver, 20)
     username_field = wait.until(EC.presence_of_element_located((By.NAME, "text")))
-    username_field.send_keys("JackJay_AI")  # Replace with your Twitter username
+    username_field.send_keys("Username")  # Replace with your Twitter username
     username_field.send_keys(Keys.RETURN)
     time.sleep(3)  # Wait for 3 seconds before entering the password
 
     # Step 3: Wait for the password field to load and enter password
     print("Entering password...")
     password_field = wait.until(EC.presence_of_element_located((By.NAME, "password")))
-    password_field.send_keys("Sarathi@2511")  # Replace with your Twitter password
+    password_field.send_keys("Password")  # Replace with your Twitter password
     password_field.send_keys(Keys.RETURN)
     time.sleep(3)  # Wait for 3 seconds after submitting the password
 

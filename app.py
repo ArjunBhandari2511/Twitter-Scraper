@@ -17,12 +17,16 @@ from pymongo import MongoClient
 app = Flask(__name__)
 
 # MongoDB connection
-client = MongoClient("mongodb://localhost:27017/stir")
-db = client['twitter_trends']
-trends_collection = db['trends']
+client = MongoClient("your_connection_uri")
+db = client['your_database_name']
+trends_collection = db['your_collections_name']
+
+username = "your_proxymesh_username"
+password = "your_proxymesh_password"
+host = "host"
 
 # Proxy and Selenium Setup
-PROXY = "http://sid:@HVNSking.123@us-ca.proxymesh.com:31280"
+PROXY = f"http://{username}:{password}@{host}"
 firefox_options = Options()
 firefox_options.add_argument(f"--proxy-server={PROXY}")
 firefox_options.add_argument("--headless")
@@ -52,9 +56,9 @@ def get_trending_topics():
         driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=firefox_options)
         driver.get("https://twitter.com/login")
 
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "text"))).send_keys("SarcArjunB", Keys.RETURN)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "text"))).send_keys("your_twitter_username", Keys.RETURN)
         time.sleep(3)
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password"))).send_keys("Sarathi@2511", Keys.RETURN)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password"))).send_keys("your_twitter_password", Keys.RETURN)
         time.sleep(5)
 
         driver.get("https://x.com/explore/tabs/for-you")
